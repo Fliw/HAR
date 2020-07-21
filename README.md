@@ -1,31 +1,32 @@
-# Rubix ML - Human Activity Recognizer
-An example project that demonstrates the problem of human activity recognition (HAR) using mobile phone sensor data recorded from the internal inertial measurement unit (IMU). The training data are the human-annotated sensor readings of 30 volunteers while performing various tasks such as sitting, standing, walking, and laying down. Each sample contains a window of 561 features, however, we demonstrate that with a technique called *random projection* we can reduce the dimensionality without any loss in accuracy. The learner we'll train to accomplish this task is a [Softmax Classifier](https://docs.rubixml.com/en/latest/classifiers/softmax-classifier.html) which is the multiclass generalization of the binary classifier [Logistic Regression](https://docs.rubixml.com/en/latest/classifiers/logistic-regression.html).
+ # Rubix ML - Pendeteksi Pergerakan Manusia
+ ## Artificial Intelligence based on Softmax Classifier
+Contoh proyek yang menunjukkan masalah pengenalan aktivitas manusia (HAR) menggunakan data sensor ponsel yang direkam dari unit pengukuran inersia internal (PII). Data pelatihan adalah pembacaan sensor beranotasi manusia dari 30 relawan sambil melakukan berbagai tugas seperti duduk, berdiri, berjalan, dan berbaring. Setiap sampel berisi Foto 561 Keadaan, namun, kami menunjukkan bahwa dengan teknik yang disebut *proyeksi acak* kami dapat mengurangi dimensi tanpa kehilangan keakuratan. Trainer yang akan kami latih untuk menyelesaikan tugas ini adalah Algoritma [Softmax Classifier](https://docs.rubixml.com/en/latest/classifiers/softmax-classifier.html) yang merupakan generalisasi multiclass dari classifier biner [Logistic Regression](https://docs.rubixml.com/en/latest/classifiers/logistic-regression.html).
 
-- **Difficulty**: Medium
-- **Training time**: Minutes
+- **Kesulitan**: Medium
+- **Waktu Untuk Belajar**: Menit
 
-## Installation
-Clone the project locally using [Composer](https://getcomposer.org/):
+## Instalasi
+Clone Project ini menggunakan [Composer](https://getcomposer.org/):
 ```sh
 $ composer create-project rubix/har
 ```
 
-## Requirements
-- [PHP](https://php.net) 7.2 or above
+## Kebutuhan
+- [PHP](https://php.net) 7.2 Atau Diatasnya
 
-#### Recommended
-- [Tensor extension](https://github.com/RubixML/Tensor) for faster training and inference
-- 1G of system memory or more
+#### Rekomendasi
+- [Ekstensi Tensor](https://github.com/RubixML/Tensor) Buat Latih dan ambil kesimpulan lebih cepat.
+- Minimum 1GB RAM Digunakan untuk training.
 
 ## Tutorial
 
-### Introduction
-The experiments have been carried out with a group of 30 volunteers within an age bracket of 19-48 years. Each person performed six activities (walking, walking up stairs, walking down stairs, sitting, standing, and laying) wearing a smartphone on their waist. Using its embedded accelerometer and gyroscope, 3-axial linear acceleration and 3-axial angular velocity were recorded at a constant rate of 50Hz. The sensor signals were pre-processed by applying noise filters and then sampled in fixed-width sliding windows of 2.56 seconds. Our objective is to build a classifier to recognize which activity a user is performing given some unseen data.
+### Pengenalan
+Percobaan telah dilakukan dengan sekelompok 30 sukarelawan dalam kurun usia 19-48 tahun. Setiap orang melakukan enam aktivitas (berjalan, berjalan menaiki tangga, berjalan menuruni tangga, duduk, berdiri, dan berbaring) mengenakan smartphone di pinggang mereka. Dengan menggunakan accelerometer dan gyroscope yang tertanam, akselerasi linear 3-aksial dan kecepatan sudut 3-aksial dicatat pada kecepatan konstan 50Hz. Sinyal-sinyal sensor pra-diproses dengan menerapkan filter noise dan kemudian sampel dalam jendela geser lebar tetap 2,56 detik. Tujuan kami adalah untuk membangun classifier untuk mengenali aktivitas mana yang dilakukan pengguna dengan memberikan beberapa data yang tidak terlihat.
 
-> **Note:** The source code for this example can be found in the [train.php](https://github.com/RubixML/HAR/blob/master/train.php) file in project root.
+> **Catatan:** Kode sumber untuk contoh ini dapat ditemukan di [train.php](https://github.com/fliw/HAR/blob/master/train.php) Di Folder Root.
 
-### Extracting the Data
-The data are given to us in two NDJSON (newline delimited JSON) files inside the project root. One file contains the training samples and the other is for testing. We'll use the [NDJSON](https://docs.rubixml.com/en/latest/extractors/ndjson.html) extractor provided in Rubix ML to import the training data into a new [Labeled](https://docs.rubixml.com/en/latest/datasets/labeled.html) dataset object. Since extractors are iterators, we can pass the extractor directly to the `fromIterator()` factory method. 
+### Ekstraksi Data
+Data diberikan kepada kami dalam dua file NDJSON (newline delimited JSON) di dalam Folder root. Satu file berisi sampel pelatihan dan yang lainnya untuk pengujian. Kami akan menggunakan [NDJSON](https://docs.rubixml.com/en/latest/extractors/ndjson.html) extractor disediakan dalam Rubix ML untuk mengimpor data pelatihan ke objek datasets yang baru [Labeled](https://docs.rubixml.com/en/latest/datasets/labeled.html). Karena extractor adalah iterator, kita dapat meneruskan extractor langsung ke Factory Method `fromIterator ()`. 
 
 ```php
 use Rubix\ML\Datasets\Labeled;
@@ -34,19 +35,19 @@ use Rubix\ML\Extractors\NDJSON;
 $dataset = Labeled::fromIterator(new NDJSON('train.ndjson'));
 ```
 
-### Dataset Preparation
-In machine learning, dimensionality reduction is often employed to compress the input samples such that most or all of the information is preserved. By reducing the number of input features, we can speed up the training process. [Random Projection](https://en.wikipedia.org/wiki/Random_projection) is a computationally efficient unsupervised dimensionality reduction technique based on the [Johnson-Lindenstrauss lemma](https://en.wikipedia.org/wiki/Johnson%E2%80%93Lindenstrauss_lemma) which states that a set of points in a high-dimensional space can be embedded into a space of lower dimensionality in such a way that distances between the points are nearly preserved. To apply dimensionality reduction to the HAR dataset we'll use a  [Gaussian Random Projector](https://docs.rubixml.com/en/latest/transformers/gaussian-random-projector.html) as part of our pipeline. Gaussian Random Projector applies a randomized linear transformation sampled from a Gaussian distribution to the sample matrix. We'll set the target number of dimensions to 110 which is less than 20% of the original input dimensionality.
+### Persiapan Datasets
+Dalam Machine Learning, pengurangan dimensi sering digunakan untuk mengompres sampel input sehingga sebagian besar atau semua informasi dipertahankan. Dengan mengurangi jumlah fitur input, kami dapat mempercepat proses pelatihan. (Semakin Banyak Semakin Pintar dan Akurat) [Random Projection](https://en.wikipedia.org/wiki/Random_projection) adalah teknik reduksi dimensionalitas tanpa pengawasan yang efisien secara komputasional berdasarkan pada [Johnson-Lindenstrauss lemma](https://en.wikipedia.org/wiki/Johnson%E2%80%93Lindenstrauss_lemma) yang menyatakan bahwa satu set titik dalam ruang berdimensi tinggi dapat disematkan ke dalam ruang berdimensi lebih rendah sedemikian rupa sehingga jarak antara titik hampir terpelihara. Untuk menerapkan pengurangan dimensi pada dataset HAR, kami akan menggunakan Proyektor [Gaussian Random Projector](https://docs.rubixml.com/en/latest/transformers/gaussian-random-projector.html) sebagai bagian dari pipeline kami. Gaussian Random Projector menerapkan transformasi linear acak yang diambil dari distribusi Gaussian ke matriks sampel. Kami akan menetapkan jumlah target dimensi ke 110 yang kurang dari 20% dari dimensi input asli.
 
-Lastly, we'll center and scale the dataset using [Z Scale Standardizer](https://docs.rubixml.com/en/latest/transformers/z-scale-standardizer.html) such that the values of the features have 0 mean and unit variance. This last step will help the learner converge quicker during training.
+Terakhir, kami akan memusatkan dan mengukur dataset menggunakan [Z Scale Standardizer](https://docs.rubixml.com/en/latest/transformers/z-scale-standardizer.html) bahwa nilai-nilai fitur memiliki 0 mean dan varians unit. Langkah terakhir ini akan membantu trainer selesai dengan kesimpulan lebih cepat selama training.
 
-We'll wrap these transformations in a [Pipeline](https://docs.rubixml.com/en/latest/pipeline.html) so that their fittings can be persisted along with the model.
+Kami akan membungkus transformasi ini dalam sebuah [Pipeline](https://docs.rubixml.com/en/latest/pipeline.html) sehingga alat kelengkapan mereka dapat bertahan bersama dengan model.
 
-### Instantiating the Learner
-Now, we'll turn our attention to setting the hyper-parameters of the learner. [Softmax Classifier](https://docs.rubixml.com/en/latest/classifiers/softmax-classifier.html) is a type of single layer neural network with a [Softmax](https://docs.rubixml.com/en/latest/neural-network/activation-functions/softmax.html) output layer. Training is done iteratively using Mini Batch Gradient Descent where at each epoch the model parameters take a step in the direction of the minimum of the error gradient produced by a user-defined cost function such as [Cross Entropy](https://docs.rubixml.com/en/latest/neural-network/cost-functions/cross-entropy.html).
+### Memulai The Learner
+Sekarang, kita akan mengalihkan perhatian kita ke pengaturan parameter trainer. [Softmax Classifier](https://docs.rubixml.com/en/latest/classifiers/softmax-classifier.html) adalah jenis jaringan saraf single layer dengan [Softmax](https://docs.rubixml.com/en/latest/neural-network/activation-functions/softmax.html) output layer. Pelatihan dilakukan secara iteratif menggunakan Mini Batch Gradient Descent di mana pada setiap parameter model mengambil langkah ke arah minimum dari kesalahan gradien yang dihasilkan oleh fungsi biaya yang ditentukan pengguna seperti [Cross Entropy](https://docs.rubixml.com/en/latest/neural-network/cost-functions/cross-entropy.html).
 
-The first hyper-parameter of Softmax Classifier is the `batch size` which controls the number of samples that are feed into the network at a time. The batch size trades off training speed for smoothness of the gradient estimate. A batch size of 256 works pretty well for this example so we'll choose that value but feel free to experiment with other settings of the batch size on your own.
+Parameter hyper-pertama Softmax Classifier adalah `ukuran batch` yang mengontrol jumlah sampel yang dimasukkan ke dalam jaringan pada suatu waktu. Ukuran bets diperdagangkan dari kecepatan pelatihan untuk kelancaran estimasi gradien. Ukuran batch 256 berfungsi cukup baik untuk contoh ini sehingga kami akan memilih nilai itu tetapi jangan ragu untuk bereksperimen dengan pengaturan lain dari ukuran batch Anda sendiri.
 
-The next hyper-parameter is the Gradient Descent `optimizer` and associated `learning rate`. The [Momentum](https://docs.rubixml.com/en/latest/neural-network/optimizers/momentum.html) optimizer is an adaptive optimizer that adds a momentum force to every parameter update. Momentum helps to speed up training by traversing the gradient quicker. It uses a global learning rate that can be set by the user and typically ranges from 0.1 to 0.0001. The default setting of 0.001 works well for this example so we'll leave it at that.
+Parameter-hiper berikutnya adalah Gradient Descent `optimizer` dan` learning rate` terkait. Itu [Momentum](https://docs.rubixml.com/en/latest/neural-network/optimizers/momentum.html) optimizer adalah optimizer adaptif yang menambah kekuatan momentum untuk setiap pembaruan parameter. Momentum membantu mempercepat pelatihan dengan melintasi gradien lebih cepat. Ini menggunakan tingkat pembelajaran global yang dapat diatur oleh pengguna dan biasanya berkisar antara 0,1 hingga 0,0001. Pengaturan default 0,001 berfungsi dengan baik untuk contoh ini sehingga kami akan membiarkannya.
 
 ```php
 use Rubix\ML\PersistentModel;
@@ -66,10 +67,10 @@ $estimator = new PersistentModel(
 );
 ```
 
-We'll wrap the entire pipeline in a [Persistent Model](https://docs.rubixml.com/en/latest/persistent-model.html) meta-estimator that adds the `save()` and `load()` methods to the base estimator. Persistent Model requires a [Persister](https://docs.rubixml.com/en/latest/persisters/api.html) object to tell it where to store the serialized model data. The [Filesystem](https://docs.rubixml.com/en/latest/persisters/filesystem.html) persister saves and loads the model data to a file located at a user-specified path in storage.
+Kami akan membungkus seluruh pipeline dalam sebuah [Persistent Model](https://docs.rubixml.com/en/latest/persistent-model.html) meta-estimator yang menambahkan metode `save ()` dan `load ()` ke estimator basis. Model Persistent membutuhkan sebuah [Persister](https://docs.rubixml.com/en/latest/persisters/api.html) objek untuk mengatakan di mana menyimpan data model serial. [Filesystem](https://docs.rubixml.com/en/latest/persisters/filesystem.html) persister menyimpan dan memuat data model ke file yang terletak di jalur yang ditentukan pengguna dalam penyimpanan. 
 
-### Setting a Logger
-Since Softmax Classifier implements the [Verbose](https://docs.rubixml.com/en/latest/verbose.html) interface, we can log training progress in real-time. To set a logger, pass in a [PSR-3](https://www.php-fig.org/psr/psr-3/) compatible logger instance to the `setLogger()` method on the learner instance. The [Screen](https://docs.rubixml.com/en/latest/other/loggers/screen.html) logger that comes built-in with Rubix ML is a good default choice if you just need something simple to output to the console.
+### Mengatur Logger
+Karena Softmax Classifier mengimplementasikan [Verbose](https://docs.rubixml.com/en/latest/verbose.html) antarmuka, kita bisa mencatat kemajuan pelatihan secara real-time. Untuk mengatur logger, masukkan sebuah [PSR-3](https://www.php-fig.org/psr/psr-3/) instance logger yang kompatibel dengan metode `setLogger ()` pada instance pelajar. [Screen](https://docs.rubixml.com/en/latest/other/loggers/screen.html) logger yang disertakan dengan Rubix ML adalah pilihan default yang bagus jika Anda hanya perlu sesuatu yang sederhana untuk di-output ke konsol.
 
 ```php
 use Rubix\ML\Other\Loggers\Screen;
@@ -78,39 +79,39 @@ $estimator->setLogger(new Screen('HAR'));
 ```
 
 ### Training
-To start training the learner, call the `train()` method on the instance with the training dataset as an argument.
+mulailah melatih pelajar, panggil metode `train ()` pada instance dengan dataset pelatihan sebagai argumen.
 
 ```php
 $estimator->train($dataset);
 ```
 
 ### Training Loss
-During training, the learner will record the training loss at each epoch which we can plot to visualize the training progress. The training loss is the value of the cost function at each epoch and can be interpretted as the amount of error left in the model after an update step. To return an array with the values of the cost function at each epoch call the `steps()` method on the learner.
+Selama pelatihan, pelajar akan mencatat kehilangan pelatihan di setiap waktu yang dapat kita plot untuk memvisualisasikan kemajuan pelatihan. Kehilangan pelatihan adalah nilai dari fungsi biaya di setiap zaman dan dapat diinterpretasikan sebagai jumlah kesalahan yang tersisa dalam model setelah langkah pembaruan. Untuk mengembalikan array dengan nilai fungsi biaya pada setiap zaman, panggil metode `steps ()` pada trainer.
 
 ```php
 $losses = $estimator->steps();
 ```
 
-This is an example of a line plot of the Cross Entropy cost function from a training session. As you can see, the model learns quickly during the early epochs with slower training nearing the final stage as the learner fine-tunes the model parameters.
+Ini adalah contoh plot garis fungsi biaya Entropi Silang dari sesi pelatihan. Seperti yang Anda lihat, model belajar dengan cepat selama zaman awal dengan pelatihan yang lebih lambat mendekati tahap akhir saat pelajar memperbaiki parameter model.
 
 ![Cross Entropy Loss](https://raw.githubusercontent.com/RubixML/HAR/master/docs/images/training-loss.svg?sanitize=true)
 
 ### Saving
-Since we wrapped the estimator in a Persistent Model wrapper, we can save the model by calling the `save()` method on the estimator instance.
+Karena kita membungkus estimator dalam pembungkus Model Persisten, kita dapat menyimpan model dengan memanggil metode `save ()` pada instance estimator.
 
 ```php
 $estimator->save();
 ```
 
-To run the training script, call it from the command line like this.
+Untuk menjalankan skrip pelatihan, panggil dari baris perintah seperti ini.
 ```sh
 $ php train.php
 ```
 
 ### Cross Validation
-The authors of the dataset provide an additional 2,947 labeled testing samples that we'll use to test the model. We've held these samples out until now because we wanted to be able to test the model on samples it has never seen before. Start by extracting the testing samples and ground-truth labels from the `test.ndjson` file.
+Penulis dataset memberikan 2.947 sampel pengujian berlabel tambahan yang akan kami gunakan untuk menguji model. Kami telah mengadakan sampel ini sampai sekarang karena kami ingin dapat menguji model pada sampel yang belum pernah dilihat sebelumnya. Mulailah dengan mengekstraksi sampel pengujian dan label kebenaran dari file `test.ndjson`.
 
-> **Note:** The source code for this example can be found in the [validate.php](https://github.com/RubixML/HAR/blob/master/validate.php) file in project root.
+> **Note:** Kode sumber untuk contoh ini dapat ditemukan di [validate.php](https://github.com/RubixML/HAR/blob/master/validate.php) file folder root.
 
 ```php
 use Rubix\ML\Datasets\Labeled;
@@ -120,7 +121,7 @@ $dataset = Labeled::fromIterator(new NDJSON('test.ndjson'));
 ```
 
 ### Load Model from Storage
-To load the estimator/transformer pipeline we instantiated earlier, call the static `load()` method on the [Persistent Model](https://docs.rubixml.com/en/latest/persistent-model.html) class with a Persister instance pointing to the model in storage.
+Untuk memuat pipa estimator / transformator yang kami instantiated sebelumnya, panggil metode static `load ()` pada [Persistent Model](https://docs.rubixml.com/en/latest/persistent-model.html) kelas dengan instance Persister yang menunjuk ke model dalam penyimpanan.
 
 ```php
 use Rubix\ML\PersistentModel;
@@ -129,15 +130,15 @@ use Rubix\ML\Persisters\Filesystem;
 $estimator = PersistentModel::load(new Filesystem('har.model'));
 ```
 
-### Making Predictions
-To obtain the predictions from the model, pass the testing set to the `predict()` method on the estimator instance.
+### Membuat Prediksi
+Untuk mendapatkan prediksi dari model, berikan set pengujian ke metode `predict ()` pada instance estimator.
 
 ```php
 $predictions = $estimator->predict($dataset);
 ```
 
-### Generating the Report
-A cross validation report gives detailed statistics about the performance of the model given the ground-truth labels. A [Multiclass Breakdown](https://docs.rubixml.com/en/latest/cross-validation/reports/multiclass-breakdown.html) report breaks down the performance of the model at the class level and outputs metrics such as accuracy, precision, recall, and more. A [Confusion Matrix](https://docs.rubixml.com/en/latest/cross-validation/reports/confusion-matrix.html) is a table that compares the predicted labels to their actual labels to show if the model is having a hard time predicting certain classes. We'll wrap both reports in an [Aggregate Report](https://docs.rubixml.com/en/latest/cross-validation/reports/aggregate-report.html) so that we can generate both reports at the same time.
+### Generate report
+Laporan validasi silang memberikan statistik terperinci tentang kinerja model yang diberi label ground-truth. [Multiclass Breakdown](https://docs.rubixml.com/en/latest/cross-validation/reports/multiclass-breakdown.html) laporan memecah kinerja model di tingkat kelas dan metrik output seperti akurasi, presisi, penarikan, dan banyak lagi. [Confusion Matrix](https://docs.rubixml.com/en/latest/cross-validation/reports/confusion-matrix.html) adalah tabel yang membandingkan label yang diprediksi dengan label yang sebenarnya untuk ditampilkan jika model mengalami kesulitan memprediksi kelas tertentu. Kami akan membungkus kedua laporan dalam [Aggregate Report](https://docs.rubixml.com/en/latest/cross-validation/reports/aggregate-report.html) sehingga kami dapat menghasilkan kedua laporan sekaligus.
 
 ```php
 use Rubix\ML\CrossValidation\Reports\AggregateReport;
@@ -150,18 +151,18 @@ $report = new AggregateReport([
 ]);
 ```
 
-Now, generate the report using the predictions and labels from the testing set.
+Now, buat laporan menggunakan prediksi dan label dari set pengujian.
 
 ```php
 $results = $report->generate($predictions, $dataset->labels());
 ```
 
-To execute the validation script, enter the following command at the command prompt.
+Untuk menjalankan skrip validasi, masukkan perintah berikut di prompt perintah.
 ```php
 $ php validate.php
 ```
 
-The output of the report should look something like the output below. Nice work! As you can see, our estimator is about 97% accurate and has very good specificity and negative predictive value.
+Output dari laporan harus terlihat seperti output di bawah ini. Kerja bagus! Seperti yang Anda lihat, penaksir kami adalah sekitar 97% akurat dan memiliki spesifisitas yang sangat baik dan nilai prediksi negatif.
 
 ```json
 [
@@ -192,13 +193,13 @@ The output of the report should look something like the output below. Nice work!
 ```
 
 ### Next Steps
-Now that you've completed this tutorial on classifying human activity using a Softmax Classifier, see if you can achieve better results by fine-tuning some of the hyper-parameters. See how much dimensionality reduction effects the final accuracy of the estimator by removing Gaussian Random Projector from the pipeline. Are there other dimensionality reduction techniques that work better?
+Sekarang setelah Anda menyelesaikan tutorial tentang mengklasifikasikan aktivitas manusia menggunakan Softmax Classifier, lihat apakah Anda dapat mencapai hasil yang lebih baik dengan menyempurnakan beberapa parameter hiper. Lihat seberapa besar reduksi dimensi memengaruhi akurasi akhir estimator dengan mengeluarkan Gaussian Random Projector dari pipa. Apakah ada teknik pengurangan dimensi lain yang bekerja lebih baik?
 
 ## Original Dataset
-Contact: Jorge L. Reyes-Ortiz(1,2), Davide Anguita(1), Alessandro Ghio(1), Luca Oneto(1) and Xavier Parra(2) Institutions: 1 - Smartlab - Non-Linear Complex Systems Laboratory DITEN - University  degli Studi di Genova, Genoa (I-16145), Italy. 2 - CETpD - Technical Research Centre for Dependency Care and Autonomous Living Polytechnic University of Catalonia (BarcelonaTech). Vilanova i la Geltrú (08800), Spain activityrecognition '@' smartlab.ws
+Contact: Jorge L. Reyes-Ortiz (1,2), Davide Anguita (1), Alessandro Ghio (1), Luca Oneto (1) and Xavier Parra (2) Institutions: 1 - Smartlab - Non-Linear Complex Systems Laboratory Laboratory DITEN - University of Genoa, Genoa (I-16145), Italy. 2 - CETpD - Technical Research Center for Dependency Care and Autonomous Living Polytechnic University of Catalonia (BarcelonaTech). Vilanova i la Geltrú (08800), Spain activityrecognition '@' smartlab.ws
 
 ## References:
->- Davide Anguita, Alessandro Ghio, Luca Oneto, Xavier Parra and Jorge L. Reyes-Ortiz. A Public Domain Dataset for Human Activity Recognition Using Smartphones. 21th European Symposium on Artificial Neural Networks, Computational Intelligence and Machine Learning, ESANN 2013. Bruges, Belgium 24-26 April 2013.
+>- Davide Anguita, Alessandro Ghio, Luca Oneto, Xavier Parra dan Jorge L. Reyes-Ortiz. Kumpulan Data Domain Publik untuk Pengakuan Aktivitas Manusia Menggunakan Ponsel Cerdas. Simposium Eropa ke-21 tentang Jaringan Syaraf Tiruan, Inteligensi Komputasi dan Pembelajaran Mesin, ESANN 2013. Bruges, Belgia 24-26 April 2013.
 
 ## License
-The code is licensed [MIT](LICENSE.md) and the tutorial is licensed [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/).
+Kode ini dilisensikan [MIT](LICENSE.md) dan tutorialnya berlisensi [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/).

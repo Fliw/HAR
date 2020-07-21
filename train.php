@@ -18,8 +18,9 @@ use function Rubix\ML\array_transpose;
 
 ini_set('memory_limit', '-1');
 
-echo 'Loading data into memory ...' . PHP_EOL;
-
+echo "Welcome To RUBIX ML's Neural Network Based On Artificial Intelligence ! \n" . PHP_EOL;
+echo "Using Softmax Classifiers for detecting Human Activity\n";
+echo "Now Loading Data From Datasets..\n";
 $dataset = Labeled::fromIterator(new NDJSON('train.ndjson'));
 
 $estimator = new PersistentModel(
@@ -32,7 +33,7 @@ $estimator = new PersistentModel(
 
 $estimator->setLogger(new Screen('HAR'));
 
-echo 'Training ...' . PHP_EOL;
+echo 'AI is Training ...' . PHP_EOL;
 
 $estimator->train($dataset);
 
